@@ -1,7 +1,14 @@
 
+import ImageGrid from "@/components/ImageGrid"
+import UploadButton from "@/components/UploadButton"
+
 function HomePage() {
+
   return (
-    <div>HomePage</div>
+    <div>
+      <UploadButton/>
+      <ImageGrid/>
+    </div>
   )
 }
 

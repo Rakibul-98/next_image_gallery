@@ -4,12 +4,12 @@ import Image from "next/image";
 import { CloudinaryImage } from "./ImageGrid";
 
 type PreviewModalProps = {
-  open: boolean;
+  previewOpen: boolean;
   handleClose: () => void;
   selectedImage?: CloudinaryImage | null;
 };
 
-function PreviewModal({ open, handleClose, selectedImage }: PreviewModalProps) {
+function PreviewModal({ previewOpen, handleClose, selectedImage }: PreviewModalProps) {
   const style = {
     position: "absolute",
     top: "50%",
@@ -27,7 +27,7 @@ function PreviewModal({ open, handleClose, selectedImage }: PreviewModalProps) {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        open={open}
+        open={previewOpen}
         onClose={handleClose}
         closeAfterTransition
         slots={{ backdrop: Backdrop }}

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const cloudRes = await fetch(cloudinaryUrl.toString(), {
       headers: {
         Authorization: `Basic ${auth}`,
-      },
+      }
     });
 
     const data = await cloudRes.json();
@@ -34,36 +34,50 @@ export async function GET(request: Request) {
   }
 }
 
-
-// export async function DELETE(request: Request) {
-//   const { public_id } = await request.json();
-
-//   try {
-//     const result = await cloudinary.uploader.destroy(public_id);
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
     
-//     if (result.result === "ok") {
-//       return NextResponse.json({ success: true });
-//     } else {
-//       return NextResponse.json(
-//         { error: "Failed to delete image" }, 
-//         { status: 400 }
-//       );
-//     }
-//   } catch (err) {
-//     console.error("Cloudinary delete error:", err);
-//     return NextResponse.json(
-//       { error: "Failed to delete image" }, 
-//       { status: 500 }
-//     );
-//   }
-// }
+    if (!file) {
+      return NextResponse.json(
+        { error: "No file provided" }, 
+        { status: 400 }
+      );
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+          resource_type: "auto"
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      ).end(buffer);
+    });
+
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error("Upload error:", err);
+    return NextResponse.json(
+      { error: "Failed to upload file" }, 
+      { status: 500 }
+    );
+  }
+}
 
 export async function DELETE(request: Request) {
   const { public_id } = await request.json();
 
   try {
     const result = await cloudinary.uploader.destroy(public_id, {
-      invalidate: true // Optional: invalidates CDN cache
+      invalidate: true
     });
     
     if (result.result === "ok") {

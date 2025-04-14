@@ -1,45 +1,38 @@
 "use client";
 
 import { Button } from "@mui/material";
-import { useState } from "react";
+import {useState } from "react";
 
 function UploadButton() {
-
   const [loading, setLoading] = useState(false);
 
   const handleUpload = async (files: FileList) => {
     setLoading(true);
-    
+
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
-        formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
-        formData.append('timestamp', String(Date.now()));
+        formData.append("file", file);
 
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
-          {
-            method: 'POST',
-            body: formData,
-          }
-        );
+        const response = await fetch("/api/images", {
+          method: "POST",
+          body: formData,
+        });
 
         if (!response.ok) {
-          throw new Error('Upload failed');
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Upload failed");
         }
 
         return response.json();
       });
 
-      const results = await Promise.all(uploadPromises);
-      const urls = results.map(result => result.secure_url);
-      
+      await Promise.all(uploadPromises);
       alert(`${files.length} file(s) uploaded successfully!`);
+      window.location.reload();
     } catch (error) {
       console.error("Upload error:", error);
-      alert(error.message || "Upload failed");
+      throw error;
     } finally {
       setLoading(false);
     }

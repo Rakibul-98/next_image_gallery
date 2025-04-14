@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Box} from "@mui/material";
+import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Next Photo Gallery",
@@ -24,8 +17,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+      <body>
+        <Box display="flex" flexDirection="column" minHeight="100vh">
+          <Header />
+          <Box component="main" flexGrow={1} px={3} py={5}
+  mx="auto">
+            {children}
+          </Box>
+          <Footer />
+        </Box>
       </body>
     </html>
   );

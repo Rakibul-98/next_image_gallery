@@ -1,16 +1,13 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-} from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText} from "@mui/material";
 
-function ConfirmDeleteModal({ openDelete, 
-    handleConfirm, 
-    handleClose,
-deleting  }) {
+type ConfirmDeleteModalProps = {
+    openDelete: boolean;
+    handleConfirm: () => void;
+    handleClose: () => void;
+    deleting: string | null;
+  }
 
+function ConfirmDeleteModal({ openDelete,  handleConfirm, handleClose, deleting} : ConfirmDeleteModalProps) {
   return (
     <Dialog
       open={openDelete}
@@ -25,7 +22,7 @@ deleting  }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button disabled={deleting} onClick={handleConfirm}>{ deleting ? "Deleting ..." :
+        <Button disabled={!!deleting} onClick={handleConfirm}>{ deleting ? "Deleting ..." :
         'Confirm'}</Button>
       </DialogActions>
     </Dialog>

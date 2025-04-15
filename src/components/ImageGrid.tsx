@@ -1,12 +1,12 @@
 "use client";
 
-import { Grid, IconButton } from "@mui/material";
+import { Grid } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Image from "next/image";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import PreviewModal from "./PreviewModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import LoadingSkeleton from "./LoadingSkeleton";
+import ImageCard from "./ImageCard";
 
 export interface CloudinaryImage {
   public_id: string;
@@ -123,42 +123,16 @@ function ImageGrid() {
         dataLength={images.length}
         next={loadMore}
         hasMore={hasMore}
-        loader={<h4>Loading...</h4>}
+        loader={
+          <LoadingSkeleton/>
+        }
         endMessage={
-          <p style={{ textAlign: "center" }}>No more images to load</p>
+          <p style={{ textAlign: "center", marginTop:"20px" }}>You have reached to the end !!</p>
         }
       >
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ justifyContent: "space-evenly" }}>
           {images.map((img, i) => (
-            <Grid key={i}>
-              <div style={{ position: "relative" }}>
-                <IconButton
-                  aria-label="delete"
-                  onClick={() => handleDeleteClick(img.public_id)}
-                  sx={{
-                    position: "absolute",
-                    right: 2,
-                    top: 2,
-                    color: "red",
-                    background: "white",
-                    zIndex: 1,
-                    "&:hover": {
-                      background: "rgb(253, 201, 201)",
-                    },
-                  }}
-                >
-                  <DeleteForeverIcon />
-                </IconButton>
-                <Image
-                  src={img.secure_url}
-                  alt={img.public_id}
-                  onClick={() => handleImageClick(img)}
-                  height={200}
-                  width={200}
-                  style={{ objectFit: "cover", borderRadius: "8px" }}
-                />
-              </div>
-            </Grid>
+            <ImageCard key={i} img={img} handleDeleteClick={handleDeleteClick} handleImageClick={handleImageClick} />
           ))}
         </Grid>
       </InfiniteScroll>

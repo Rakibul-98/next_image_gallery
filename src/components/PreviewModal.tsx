@@ -1,4 +1,9 @@
-import { Backdrop, Box, IconButton, Modal } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  IconButton,
+  Modal,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
 import { CloudinaryImage } from "./ImageGrid";
@@ -9,60 +14,69 @@ type PreviewModalProps = {
   selectedImage?: CloudinaryImage | null;
 };
 
-function PreviewModal({ previewOpen, handleClose, selectedImage }: PreviewModalProps) {
+function PreviewModal({
+  previewOpen,
+  handleClose,
+  selectedImage,
+}: PreviewModalProps) {
   const style = {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 400,
+    width: "80%",
+    height: "80%",
+    maxWidth: 700,
     bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
+    borderRadius: 2,
+    overflow: "hidden",
   };
 
   return (
-    <div>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={previewOpen}
-        onClose={handleClose}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Box sx={style}>
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
+    <Modal
+      open={previewOpen}
+      onClose={handleClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+        },
+      }}
+    >
+      <Box sx={style}>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          size="small"
+          sx={{
+            position: "absolute",
+            right: 2,
+            top: 2,
+            zIndex: 2,
+            color: "red",
+            backgroundColor: "white",
+            "&:hover": {
+              backgroundColor: "rgb(255, 210, 210)",
+            },
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+
+        {selectedImage && (
+          <Image
+            src={selectedImage.secure_url}
+            alt={selectedImage.public_id}
+            fill
+            style={{
+              objectFit: "cover",
             }}
-          >
-            <CloseIcon />
-          </IconButton>
-          {selectedImage && (
-            <Image
-              src={selectedImage.secure_url}
-              alt={selectedImage.public_id}
-              height={200}
-              width={200}
-              style={{ objectFit: "cover", borderRadius: "8px" }}
-              quality={100}
-            />
-          )}
-        </Box>
-      </Modal>
-    </div>
+            quality={100}
+          />
+        )}
+      </Box>
+    </Modal>
   );
 }
 

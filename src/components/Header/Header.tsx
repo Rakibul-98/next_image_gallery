@@ -1,26 +1,38 @@
 "use client";
 
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  InputBase,
-  IconButton,
-  Paper,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { AppBar, Toolbar, Typography, Snackbar, Alert} from "@mui/material";
 import { useState } from "react";
 import UploadButton from "../UploadButton";
+import SearchBar from "./SearchBar/SearchBar";
 
 function Header() {
   const [searchValue, setSearchValue] = useState("");
+  const [showEmptyError, setShowEmptyError] = useState(false);
 
-  const handleSearch = () => {
-    console.log("Search value:", searchValue);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const trimmedValue = searchValue.trim();
+    if (!trimmedValue) {
+      setShowEmptyError(true);
+      return;
+    }
+
+    console.log("Search value:", trimmedValue);
+    setSearchValue("");
+  };
+
+  const handleCloseError = () => {
+    setShowEmptyError(false);
   };
 
   return (
-    <AppBar position="static" color="transparent" elevation={2} sx={{py:0.5}}>
+    <AppBar
+      position="static"
+      color="transparent"
+      elevation={1}
+      sx={{ py: 0.5 }}
+    >
       <Toolbar
         sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}
       >
@@ -28,34 +40,23 @@ function Header() {
           📸 NextGallery
         </Typography>
 
-        <Paper
-          component="form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSearch();
-          }}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            borderRadius: "999px",
-            width: { xs: "40%" },
-            bgcolor: "#f0f0f0",
-            boxShadow: "none",
-          }}
-        >
-          <InputBase
-            placeholder="Search images..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            sx={{ ml: 2, flex: 1 }}
-            inputProps={{ "aria-label": "search images" }}
-          />
-          <IconButton type="submit" sx={{ p: 0.9, color:'blue' }} aria-label="search">
-            <SearchIcon />
-          </IconButton>
-        </Paper>
+        <SearchBar handleSearch={handleSearch} searchValue={searchValue} setSearchValue={setSearchValue} />
 
-        <UploadButton/>
+        <UploadButton />
+        <Snackbar
+          open={showEmptyError}
+          autoHideDuration={2000}
+          onClose={handleCloseError}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseError}
+            severity="warning"
+            sx={{ width: "100%" }}
+          >
+            Please enter a search term
+          </Alert>
+        </Snackbar>
       </Toolbar>
     </AppBar>
   );

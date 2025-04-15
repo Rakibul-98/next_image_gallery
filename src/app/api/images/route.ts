@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const nextCursor = searchParams.get("nextCursor") || null;
 
   const cloudinaryUrl = new URL(`https://api.cloudinary.com/v1_1/${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/resources/image/upload`);
-  cloudinaryUrl.searchParams.append("max_results", "15");
+  cloudinaryUrl.searchParams.append("max_results", "18");
   if (nextCursor) cloudinaryUrl.searchParams.append("next_cursor", nextCursor);
 
   const auth = Buffer.from(`${NEXT_PUBLIC_CLOUDINARY_API_KEY}:${NEXT_PUBLIC_CLOUDINARY_API_SECRET}`).toString("base64");
@@ -34,14 +34,15 @@ export async function GET(request: Request) {
   }
 }
 
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    
+
     if (!file) {
       return NextResponse.json(
-        { error: "No file provided" }, 
+        { error: "No file provided" },
         { status: 400 }
       );
     }
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json(
-      { error: "Failed to upload file" }, 
+      { error: "Failed to upload file" },
       { status: 500 }
     );
   }
@@ -79,21 +80,22 @@ export async function DELETE(request: Request) {
     const result = await cloudinary.uploader.destroy(public_id, {
       invalidate: true
     });
-    
+
     if (result.result === "ok") {
       return NextResponse.json({ success: true });
     } else {
       console.error('Cloudinary delete failed:', result);
       return NextResponse.json(
-        { error: result.result || "Failed to delete image" }, 
+        { error: result.result || "Failed to delete image" },
         { status: 400 }
       );
     }
   } catch (err) {
     console.error("Cloudinary delete error:", err);
     return NextResponse.json(
-      { error: "Failed to delete image" }, 
+      { error: "Failed to delete image" },
       { status: 500 }
     );
   }
 }
+

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Box} from "@mui/material";
+import { Box } from "@mui/material";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-
 
 export const metadata: Metadata = {
   title: "Next Photo Gallery",
@@ -20,8 +19,7 @@ export default function RootLayout({
       <body>
         <Box display="flex" flexDirection="column" minHeight="100vh">
           <Header />
-          <Box component="main" flexGrow={1} px={3} py={5}
-  mx="auto">
+          <Box component="main" flexGrow={1} py={4} px={2.5} >
             {children}
           </Box>
           <Footer />

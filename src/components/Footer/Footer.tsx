@@ -4,11 +4,8 @@ function Footer() {
   return (
     <div>
       <Box
-        component="footer"
         sx={{
-          mt: "auto",
           py: 3,
-          px: 2,
           bgcolor: "#f5f5f5",
           textAlign: "center",
         }}

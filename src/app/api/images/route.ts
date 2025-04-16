@@ -1,39 +1,53 @@
 import cloudinary from "@/lib/cloudinary";
 import { NextResponse } from "next/server";
 
+
 export async function GET(request: Request) {
-  const { NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_CLOUDINARY_API_KEY, NEXT_PUBLIC_CLOUDINARY_API_SECRET } = process.env;
+  const {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    NEXT_PUBLIC_CLOUDINARY_API_KEY,
+    NEXT_PUBLIC_CLOUDINARY_API_SECRET,
+  } = process.env;
 
   const { searchParams } = new URL(request.url);
   const nextCursor = searchParams.get("nextCursor") || null;
+  const searchQuery = searchParams.get("searchQuery");
 
-  const cloudinaryUrl = new URL(`https://api.cloudinary.com/v1_1/${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/resources/image/upload`);
-  cloudinaryUrl.searchParams.append("max_results", "18");
-  if (nextCursor) cloudinaryUrl.searchParams.append("next_cursor", nextCursor);
+  const baseUrl = `https://api.cloudinary.com/v1_1/${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/resources/search`;
 
-  const auth = Buffer.from(`${NEXT_PUBLIC_CLOUDINARY_API_KEY}:${NEXT_PUBLIC_CLOUDINARY_API_SECRET}`).toString("base64");
+  const auth = Buffer.from(
+    `${NEXT_PUBLIC_CLOUDINARY_API_KEY}:${NEXT_PUBLIC_CLOUDINARY_API_SECRET}`
+  ).toString("base64");
 
   try {
-    const cloudRes = await fetch(cloudinaryUrl.toString(), {
+    const cloudRes = await fetch(baseUrl, {
+      method: "POST",
       headers: {
         Authorization: `Basic ${auth}`,
-      }
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        expression: searchQuery,
+        sort_by: [{ created_at: "desc" }],
+        max_results: 18,
+        next_cursor: nextCursor || undefined,
+      }),
     });
 
     const data = await cloudRes.json();
 
-    const hasNext = data.next_cursor ? true : false;
-
     return NextResponse.json({
       resources: data.resources,
-      next_cursor: hasNext ? data.next_cursor : null,
+      next_cursor: data.next_cursor || null,
     });
   } catch (err) {
-    console.error("Cloudinary API error:", err);
-    return NextResponse.json({ error: "Failed to fetch images" }, { status: 500 });
+    console.error("Cloudinary search error:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch images" },
+      { status: 500 }
+    );
   }
 }
-
 
 export async function POST(request: Request) {
   try {

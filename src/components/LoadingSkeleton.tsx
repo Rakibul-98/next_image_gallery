@@ -10,7 +10,7 @@ function LoadingSkeleton() {
         sx={{ justifyContent: "space-evenly", mt: "10px" }}
       >
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} style={{ position: "relative" }}>
+          <div key={i}>
             <Skeleton
               variant="rectangular"
               width={200}

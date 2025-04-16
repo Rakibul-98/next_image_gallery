@@ -1,12 +1,13 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import { Alert, Box, Grid, Snackbar, Typography } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import PreviewModal from "./PreviewModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import LoadingSkeleton from "./LoadingSkeleton";
 import ImageCard from "./ImageCard";
+import SearchBar from "./SearchBar";
 
 export interface CloudinaryImage {
   public_id: string;
@@ -26,6 +27,13 @@ function ImageGrid() {
   const [openDelete, setOpenDelete] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error" | "info" | "warning",
+  });
+  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleImageClick = (image: CloudinaryImage) => {
     setSelectedImage(image);
@@ -66,11 +74,26 @@ function ImageGrid() {
         setImages((prev) =>
           prev.filter((img) => img.public_id !== imageToDelete)
         );
+        setSnackbar({
+          open: true,
+          message: "Image deleted successfully",
+          severity: "error",
+        });
       } else {
-        console.error("Delete failed:", data.error);
+        setSnackbar({
+          open: true,
+          message: data.error || "Delete failed",
+          severity: "error",
+        });
+        // console.error("Delete failed:", data.error);
       }
     } catch (err) {
-      console.error("Error deleting image:", err);
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : "Error deleting image",
+        severity: "error",
+      });
+      // console.error("Error deleting image:", err);
     } finally {
       setDeleting(null);
       setImageToDelete(null);
@@ -85,6 +108,8 @@ function ImageGrid() {
     try {
       const url = new URL("/api/images", window.location.origin);
       if (nextCursor) url.searchParams.append("nextCursor", nextCursor);
+
+      if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
 
       const res = await fetch(url.toString());
       const data = await res.json();
@@ -104,12 +129,17 @@ function ImageGrid() {
         setHasMore(!!data.next_cursor);
       }
     } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "Error loading images",
+        severity: "error",
+      });
       console.error("Error loading images:", err);
     } finally {
       setLoading(false);
       if (!hasInitialLoad) setHasInitialLoad(true);
     }
-  }, [loading, hasMore, nextCursor, hasInitialLoad]);
+  }, [loading, hasMore, nextCursor, hasInitialLoad, searchQuery]);
 
   useEffect(() => {
     if (!hasInitialLoad) {
@@ -117,26 +147,86 @@ function ImageGrid() {
     }
   }, [hasInitialLoad, loadMore]);
 
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   return (
     <>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          px: 1,
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: "bold",
+            fontSize: { xs: "1rem", sm: "1.2rem", md: "1.5rem" },
+            color: searchQuery ? "primary.main" : "text.primary",
+          }}
+        >
+          {searchQuery ? `Search results for "${searchQuery}"` : "All Images"}
+        </Typography>
+        <SearchBar
+          search={search}
+          setSearch={setSearch}
+          setImages={setImages}
+          setNextCursor={setNextCursor}
+          setHasMore={setHasMore}
+          setHasInitialLoad={setHasInitialLoad}
+          setSearchQuery={setSearchQuery}
+        />
+      </Box>
+
       <InfiniteScroll
         dataLength={images.length}
         next={loadMore}
         hasMore={hasMore}
-        loader={
-          <LoadingSkeleton/>
-        }
+        loader={<LoadingSkeleton />}
         endMessage={
-          <p style={{ textAlign: "center", marginTop:"20px" }}>You have reached to the end !!</p>
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "20px",
+              fontWeight: "500",
+            }}
+          >
+            {searchQuery ? (
+              <>
+                🔍 No more results found for{" "}
+                <strong>&quot;{searchQuery}&quot;</strong>
+              </>
+            ) : (
+              <>🎉 You&apos;ve reached the end of the gallery!</>
+            )}
+          </p>
         }
       >
-        <Grid container spacing={2} sx={{ justifyContent: "space-evenly" }}>
+        <Grid container spacing={2} sx={{ justifyContent: "center" }}>
           {images.map((img, i) => (
-            <ImageCard key={i} img={img} handleDeleteClick={handleDeleteClick} handleImageClick={handleImageClick} />
+            <Box
+              key={i}
+              sx={{
+                height: "200px",
+                width: "200px",
+                bgcolor: "lightgrey",
+                borderRadius: "4px",
+              }}
+            >
+              <ImageCard
+                img={img}
+                handleDeleteClick={handleDeleteClick}
+                handleImageClick={handleImageClick}
+              />
+            </Box>
           ))}
         </Grid>
       </InfiniteScroll>
-
       <ConfirmDeleteModal
         openDelete={openDelete}
         handleConfirm={handleDelete}
@@ -146,12 +236,27 @@ function ImageGrid() {
           setImageToDelete(null);
         }}
       />
-
       <PreviewModal
         selectedImage={selectedImage}
         handleClose={handleClose}
         previewOpen={previewOpen}
       />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          variant="filled"
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

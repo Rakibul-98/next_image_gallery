@@ -1,9 +1,4 @@
-import {
-  Backdrop,
-  Box,
-  IconButton,
-  Modal,
-} from "@mui/material";
+import { Box, IconButton, Modal } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
 import { CloudinaryImage } from "./ImageGrid";
@@ -36,13 +31,6 @@ function PreviewModal({
     <Modal
       open={previewOpen}
       onClose={handleClose}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{
-        backdrop: {
-          timeout: 500,
-        },
-      }}
     >
       <Box sx={style}>
         <IconButton
@@ -69,10 +57,6 @@ function PreviewModal({
             src={selectedImage.secure_url}
             alt={selectedImage.public_id}
             fill
-            style={{
-              objectFit: "cover",
-            }}
-            quality={100}
           />
         )}
       </Box>

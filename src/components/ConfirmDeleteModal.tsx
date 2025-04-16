@@ -25,12 +25,11 @@ function ConfirmDeleteModal({
     <Dialog open={openDelete} keepMounted onClose={handleClose}>
       <DialogContent>
         <DialogContentText id="alert-dialog-slide-description">
-          Are you sure to <span>Delete</span> this image?
+          Are you sure to Delete this image?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} variant="outlined" sx={{ px: 1.5 }}>
-          {" "}
           Cancel
         </Button>
         <Button
